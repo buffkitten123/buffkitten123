@@ -1,4 +1,5 @@
 from pyspark.sql import SparkSession
+import math
 
 def convert_size_bytes(size_bytes):
     """Convert bytes to a human-readable format."""
@@ -24,14 +25,20 @@ df.cache()
 df.count()  # Force caching
 
 # Access hidden parameters to get DataFrame size in bytes
-catalyst_plan = df._jdf.queryExecution().logical()
-size_bytes = spark._jsparkSession.sessionState().executePlan(catalyst_plan).optimizedPlan().stats().sizeInBytes()
+try:
+    catalyst_plan = df._jdf.queryExecution().logical()
+    session_state = spark._jsparkSession.sessionState()
+    executed_plan = session_state.executePlan(catalyst_plan)
+    size_bytes = executed_plan.optimizedPlan().stats().sizeInBytes()
+except Exception as e:
+    size_bytes = None
+    print(f"An error occurred while accessing DataFrame size: {e}")
 
 # Unpersist the DataFrame
 df.unpersist()
 
 # Print the total table size
-print("Total table size:", convert_size_bytes(size_bytes))
-
-# Stop the Spark session
-spark.stop()
+if size_bytes is not None:
+    print("Total table size:", convert_size_bytes(size_bytes))
+else:
+    print("Could not determine the size of the DataFrame.")
