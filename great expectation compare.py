@@ -1,5 +1,4 @@
 import great_expectations as ge
-from great_expectations.profile.user_configurable_profiler import UserConfigurableProfiler
 import pandas as pd
 
 # Sample data
@@ -21,19 +20,25 @@ context = ge.data_context.DataContext()
 
 # Dataset 1
 expectation_suite_name_1 = "dataset1_suite"
-context.create_expectation_suite(expectation_suite_name_1, overwrite_existing=True)
-batch1 = ge.dataset.PandasDataset(df1)
-profiler1 = UserConfigurableProfiler(batch1)
-suite1 = profiler1.build_suite()
-context.save_expectation_suite(suite1, expectation_suite_name_1)
+context.add_or_update_expectation_suite(expectation_suite_name_1)
+batch_kwargs_1 = {
+    "datasource": "pandas", 
+    "dataset": df1
+}
+batch_1 = context.get_batch(batch_kwargs=batch_kwargs_1, expectation_suite_name=expectation_suite_name_1)
+batch_1.profile(UserConfigurableProfiler, profiler_configuration="basic")
+context.save_expectation_suite(batch_1.get_expectation_suite(), expectation_suite_name_1)
 
 # Dataset 2
 expectation_suite_name_2 = "dataset2_suite"
-context.create_expectation_suite(expectation_suite_name_2, overwrite_existing=True)
-batch2 = ge.dataset.PandasDataset(df2)
-profiler2 = UserConfigurableProfiler(batch2)
-suite2 = profiler2.build_suite()
-context.save_expectation_suite(suite2, expectation_suite_name_2)
+context.add_or_update_expectation_suite(expectation_suite_name_2)
+batch_kwargs_2 = {
+    "datasource": "pandas", 
+    "dataset": df2
+}
+batch_2 = context.get_batch(batch_kwargs=batch_kwargs_2, expectation_suite_name=expectation_suite_name_2)
+batch_2.profile(UserConfigurableProfiler, profiler_configuration="basic")
+context.save_expectation_suite(batch_2.get_expectation_suite(), expectation_suite_name_2)
 
 # Build the data docs
 context.build_data_docs()
