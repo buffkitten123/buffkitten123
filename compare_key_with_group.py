@@ -1,6 +1,6 @@
 import pandas as pd
 
-# Sample DataFrames with additional columns
+# Sample DataFrames with additional columns and duplicate indices
 df1 = pd.DataFrame({
     'A': [1, 1, 2, 2, 3, 3],
     'B': [1, 2, 3, 4, 5, 6],
@@ -17,18 +17,17 @@ df2 = pd.DataFrame({
 df1_subset = df1[['A', 'B']]
 df2_subset = df2[['A', 'B']]
 
-# Set 'A' as the index for both DataFrames
-df1_subset.set_index('A', inplace=True)
-df2_subset.set_index('A', inplace=True)
+# Merge the DataFrames on 'A' to align rows and compare
+merged_df = df1_subset.merge(df2_subset, on='A', how='outer', suffixes=('_df1', '_df2'))
 
-# Reindex both DataFrames to ensure all keys are considered
-df1_subset = df1_subset.reindex(df1_subset.index.union(df2_subset.index))
-df2_subset = df2_subset.reindex(df1_subset.index)
+# Identify rows with differing 'B' values
+differing_rows = merged_df[merged_df['B_df1'] != merged_df['B_df2']]
 
-# Compare DataFrames
-comparison = df1_subset.compare(df2_subset)
+# Remove rows with NaN values in 'B_df1' and 'B_df2'
+differing_rows_cleaned = differing_rows.dropna(subset=['B_df1', 'B_df2'])
 
-# Get the keys (index) with differing values
-differing_keys = comparison.index.tolist()
+# Get a DataFrame with unique values in column 'A'
+unique_differing_rows_cleaned = differing_rows_cleaned.drop_duplicates(subset='A')
 
-print("Keys with differing values:", differing_keys)
+print("Unique keys with differing values:")
+print(unique_differing_rows_cleaned)
