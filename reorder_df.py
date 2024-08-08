@@ -1,27 +1,22 @@
-def reorder_columns(df):
-    # Identify columns with '_apple' in their names
-    apple_cols = [col for col in df.columns if '_apple' in col]
-    
-    # Identify non-apple columns
-    non_apple_cols = [col for col in df.columns if '_apple' not in col]
-    
-    # Determine the number of '_apple' columns
-    num_apples = len(apple_cols)
-    
-    # Reorder columns between the first column and the apple columns
-    reorder_non_apple_cols = non_apple_cols[1:-num_apples]  # exclude the first column and the last num_apples columns
-    reordered_cols = [non_apple_cols[0]]  # start with the first column
-    
-    i = 0
-    while i < len(reorder_non_apple_cols):
-        reordered_cols.append(reorder_non_apple_cols[i])
-        if i + 2 < len(reorder_non_apple_cols):
-            reordered_cols.append(reorder_non_apple_cols[i + 2])
-        i += 1
-    
-    reordered_cols = reordered_cols[:len(reorder_non_apple_cols)] + non_apple_cols[-num_apples:] + apple_cols
-    
-    # Create the new reordered DataFrame
-    final_df = df[reordered_cols]
-    
-    return final_df
+def rearrange_columns(df, ending_match):
+    # Count the number of columns ending with the specified match
+    matched_columns = [col for col in df.columns if col.endswith(ending_match)]
+    match_count = len(matched_columns)
+
+    # Define the number of rearranged columns
+    rearranged_columns_count = match_count * 2
+
+    # Identify the columns to be rearranged (excluding col1 and the last matched columns)
+    initial_columns = [col for col in df.columns if not col.endswith(ending_match)]
+    columns_to_rearrange = initial_columns[1:rearranged_columns_count+1]
+
+    # Create the new column order
+    new_order = ['col1']
+    for i in range(rearranged_columns_count // 2):
+        new_order.append(columns_to_rearrange[i])
+        new_order.append(columns_to_rearrange[i + rearranged_columns_count // 2])
+    new_order += initial_columns[rearranged_columns_count+1:] + matched_columns
+
+    # Rearrange the DataFrame
+    df_rearranged = df[new_order]
+    return df_rearranged
