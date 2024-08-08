@@ -6,12 +6,13 @@ def rearrange_columns(df, ending_match):
     # Define the number of rearranged columns
     rearranged_columns_count = match_count * 2
 
-    # Identify the columns to be rearranged (excluding col1 and the last matched columns)
+    # Identify the columns to be rearranged (excluding the first column and the last matched columns)
     initial_columns = [col for col in df.columns if not col.endswith(ending_match)]
     columns_to_rearrange = initial_columns[1:rearranged_columns_count+1]
 
     # Create the new column order
-    new_order = ['col1']
+    first_column = df.columns[0]
+    new_order = [first_column]
     for i in range(rearranged_columns_count // 2):
         new_order.append(columns_to_rearrange[i])
         new_order.append(columns_to_rearrange[i + rearranged_columns_count // 2])
@@ -20,3 +21,7 @@ def rearrange_columns(df, ending_match):
     # Rearrange the DataFrame
     df_rearranged = df[new_order]
     return df_rearranged
+
+# Testing the function with the given DataFrame and '_apple' match
+df_rearranged_function = rearrange_columns(df, '_apple')
+df_rearranged_function
